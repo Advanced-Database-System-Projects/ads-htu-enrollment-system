@@ -1,7 +1,107 @@
 {% extends "base.html" %}
 {% block title %}Instructor Dashboard{% endblock %}
 {% block content %}
-<h2>Instructor Dashboard</h2>
-<p>Welcome, {{ user.get_full_name|default:user.username }}.</p>
-<div class="alert alert-info">Access is limited to assigned sections and relevant records. Grade actions are disabled until explicitly defined. This is a minimal placeholder for Stage 1.</div>
+<div class="d-flex justify-content-between align-items-center mb-3 htu-page-head">
+    <div>
+        <h2>Instructor Dashboard</h2>
+        <p class="text-muted mb-0">Welcome, {{ user.get_full_name|default:user.username }}.</p>
+    </div>
+</div>
+
+{% if current_term %}
+<p class="mb-3">
+    <span class="fw-semibold">Academic term:</span> {{ current_term }}
+    {% if current_term.enrollment_open %}
+        <span class="badge text-bg-success ms-1">Enrollment Open</span>
+    {% endif %}
+</p>
+
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-md-3">
+        <div class="card h-100">
+            <div class="card-header">Assigned Sections</div>
+            <div class="card-body">
+                <p class="display-6 mb-0 fw-bold">{{ sections|length }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+        <div class="card h-100">
+            <div class="card-header">Confirmed Enrolled</div>
+            <div class="card-body">
+                <p class="display-6 mb-0 fw-bold">{{ total_confirmed }}</p>
+                {% if total_pending > 0 %}
+                <p class="text-muted mb-0" style="font-size:.85em">+ {{ total_pending }} pending</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<h3 class="h4">Teaching Assignments</h3>
+{% if sections %}
+<div class="table-responsive">
+<table class="table table-striped align-middle">
+    <thead>
+        <tr>
+            <th>Course</th>
+            <th>Section</th>
+            <th>Schedule</th>
+            <th>Room</th>
+            <th>Confirmed</th>
+            <th>Pending</th>
+            <th>Capacity</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for section in sections %}
+        <tr>
+            <td>
+                <span class="fw-semibold">{{ section.course.course_code }}</span><br>
+                <span class="text-muted" style="font-size:.88em">{{ section.course.title }}</span>
+            </td>
+            <td>{{ section.section_code }}</td>
+            <td>
+                {% if section.day_of_week is not None and section.start_time and section.end_time %}
+                    {{ section.get_day_of_week_display }}
+                    {{ section.start_time|time:"H:i" }}&ndash;{{ section.end_time|time:"H:i" }}
+                {% else %}
+                    <span class="text-muted">TBA</span>
+                {% endif %}
+            </td>
+            <td>
+                {% if section.room %}{{ section.room.room_code }}{% elif section.room_code %}{{ section.room_code }}{% else %}&mdash;{% endif %}
+            </td>
+            <td>{{ section.confirmed_count }}</td>
+            <td>
+                {% if section.pending_count > 0 %}
+                    {{ section.pending_count }}
+                {% else %}
+                    &mdash;
+                {% endif %}
+            </td>
+            <td>{{ section.capacity }}</td>
+            <td>
+                {% if section.status == 'OPEN' %}
+                    <span class="badge text-bg-success">{{ section.get_status_display }}</span>
+                {% elif section.status == 'CLOSED' %}
+                    <span class="badge text-bg-secondary">{{ section.get_status_display }}</span>
+                {% else %}
+                    <span class="badge text-bg-danger">{{ section.get_status_display }}</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+{% else %}
+<p class="text-muted">No sections assigned for this term.</p>
+{% endif %}
+
+{% else %}
+<p class="text-muted">No academic term is currently available.</p>
+{% endif %}
+
 {% endblock %}
