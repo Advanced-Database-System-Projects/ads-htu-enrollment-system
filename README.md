@@ -17,6 +17,11 @@ and course-project name remain *ADS Enrollment System*. Branding is limited to
 documentation, static assets, and presentation; application behaviour is
 unchanged. See `docs/brand/htu-brand-reference.md` and `docs/brand/NOTICE.md`.
 
+Group Members: Nicholo Luigi Dela Rosa
+               Jabriel Encarnacion
+               Brenel Nico Once
+               Aliah Molina
+
 ## Technology stack
 
 | Component | Version |
